@@ -1,0 +1,61 @@
+@import "tailwindcss/base";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@layer base {
+  body {
+    @apply font-serif text-gray-800;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-sans;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-emerald-700 hover:bg-emerald-800 text-white py-2 px-6 rounded-md transition duration-300;
+  }
+  .btn-secondary {
+    @apply bg-white border border-emerald-700 text-emerald-700 hover:bg-emerald-50 py-2 px-6 rounded-md transition duration-300;
+  }
+  .section-container {
+    @apply container mx-auto px-4 py-12 md:py-16;
+  }
+}
+
+/* Custom styles for the website */
+.hero-gradient {
+  background: linear-gradient(135deg, #f0fff4 0%, #ddfeca 100%);
+}
+
+/* Animation for newsletter popup */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Product card hover effects */
+.product-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
