@@ -1,36 +1,123 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400..700;1,400..700&family=DM+Mono:wght@300;400;500&family=Instrument+Serif:ital@0;1&family=Marcellus&display=swap");
+
 @import "tailwindcss/base";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@layer base {
-  body {
-    @apply font-serif text-gray-800;
+
+/* Custom utility classes */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
   }
+
+  .text-stroke {
+    -webkit-text-stroke: 1px currentColor;
+    color: transparent;
+  }
+
+  .mask-image-linear {
+    mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply font-sans antialiased text-gray-800 selection:bg-emerald-100 selection:text-emerald-900;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
   h1,
   h2,
   h3,
-  h4,
+  h4 {
+    @apply font-display;
+  }
+
   h5,
   h6 {
-    @apply font-sans;
+    @apply font-serif;
   }
 }
 
 @layer components {
   .btn-primary {
-    @apply bg-emerald-700 hover:bg-emerald-800 text-white py-2 px-6 rounded-md transition duration-300;
+    @apply relative px-6 py-2 overflow-hidden text-white transition duration-300 rounded-md bg-emerald-700 hover:bg-emerald-800 after:absolute after:inset-0 after:w-full after:h-full after:bg-white after:opacity-0 after:transition-opacity hover:after:opacity-10 after:rounded-md;
   }
+
   .btn-secondary {
-    @apply bg-white border border-emerald-700 text-emerald-700 hover:bg-emerald-50 py-2 px-6 rounded-md transition duration-300;
+    @apply relative px-6 py-2 overflow-hidden transition duration-300 bg-white border rounded-md border-emerald-700 text-emerald-700 hover:bg-emerald-50 after:absolute after:inset-0 after:w-full after:h-full after:bg-emerald-700 after:opacity-0 after:transition-opacity hover:after:opacity-5 after:rounded-md;
   }
+
   .section-container {
-    @apply container mx-auto px-4 py-12 md:py-16;
+    @apply container px-4 py-12 mx-auto md:py-16;
+  }
+
+  .hero-text {
+    @apply leading-tight tracking-tight font-display;
+  }
+
+  .display-text {
+    @apply text-5xl font-medium leading-tight tracking-tight font-display md:text-7xl;
+  }
+
+  .marquee-container {
+    @apply relative overflow-hidden whitespace-nowrap;
+  }
+
+  .marquee-content {
+    @apply inline-block animate-marquee;
+  }
+
+  .image-frame {
+    @apply relative overflow-hidden border rounded-lg border-clay-100;
+  }
+
+  .image-hover {
+    @apply transition-all duration-700 ease-in-out hover:scale-105;
+  }
+
+  .glass-card {
+    @apply border bg-white/70 backdrop-blur-md border-white/20 shadow-elegant;
+  }
+
+  .section-heading {
+    @apply mb-6 text-3xl font-medium md:text-4xl font-display text-balance;
+  }
+
+  .link-underline {
+    @apply relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-current 
+    after:transition-all after:duration-300 hover:after:w-full;
   }
 }
 
-/* Custom styles for the website */
+/* Hero section gradient */
 .hero-gradient {
   background: linear-gradient(135deg, #f0fff4 0%, #ddfeca 100%);
+}
+
+/* Enhanced hero gradient */
+.hero-enhanced-gradient {
+  background: linear-gradient(
+    135deg,
+    rgba(225, 250, 234, 0.6) 0%,
+    rgba(236, 253, 245, 0.8) 50%,
+    rgba(209, 250, 229, 0.6) 100%
+  );
+  backdrop-filter: blur(10px);
+}
+
+/* Subtle background pattern */
+.bg-pattern {
+  background-color: #fff;
+  background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23f0fff4' fill-opacity='0.4' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='3'/%3E%3Ccircle cx='13' cy='13' r='3'/%3E%3C/g%3E%3C/svg%3E");
 }
 
 /* Animation for newsletter popup */
@@ -51,11 +138,65 @@
 
 /* Product card hover effects */
 .product-card {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.7s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .product-card:hover {
   transform: translateY(-8px);
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1),
     0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Smooth reveal animation classes */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 1s cubic-bezier(0.5, 0, 0, 1);
+}
+
+.reveal.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Staggered reveal delay classes */
+.delay-1 {
+  transition-delay: 0.1s;
+}
+.delay-2 {
+  transition-delay: 0.2s;
+}
+.delay-3 {
+  transition-delay: 0.3s;
+}
+.delay-4 {
+  transition-delay: 0.4s;
+}
+.delay-5 {
+  transition-delay: 0.5s;
+}
+
+/* Magnetic hover effect (to be used with JS) */
+.magnetic-hover {
+  transition: transform 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+  will-change: transform;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #047857;
 }

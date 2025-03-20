@@ -9,6 +9,7 @@ export function useCart() {
 export function CartProvider({ children }) {
   const [cartItems, setCartItems] = useState([]);
   const [subtotal, setSubtotal] = useState(0);
+  const [cartCount, setCartCount] = useState(0);
 
   // Load cart from localStorage on initial render
   useEffect(() => {
@@ -32,13 +33,20 @@ export function CartProvider({ children }) {
       return sum + price * item.quantity;
     }, 0);
 
+    // Calculate total item count
+    const count = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+
     setSubtotal(total);
+    setCartCount(count);
   }, [cartItems]);
 
   // Add item to cart
   const addToCart = (product, quantity = 1, selectedOptions = {}) => {
     setCartItems((prevItems) => {
-      // Check if item is already in cart
+      // Generate a unique cart item ID
+      const cartItemId = `${product.id}-${Date.now()}`;
+
+      // Check if item is already in cart with same selected options
       const existingItemIndex = prevItems.findIndex(
         (item) =>
           item.id === product.id &&
@@ -53,7 +61,10 @@ export function CartProvider({ children }) {
         return updatedItems;
       } else {
         // Add new item
-        return [...prevItems, { ...product, quantity, selectedOptions }];
+        return [
+          ...prevItems,
+          { ...product, quantity, selectedOptions, cartItemId },
+        ];
       }
     });
   };
@@ -81,10 +92,12 @@ export function CartProvider({ children }) {
   // Clear cart
   const clearCart = () => {
     setCartItems([]);
+    localStorage.removeItem("phulerCart");
   };
 
   const value = {
     cartItems,
+    cartCount,
     subtotal,
     addToCart,
     removeFromCart,
