@@ -1,5 +1,5 @@
-// src/components/FilterSidebar.jsx
-import React, { useState } from "react";
+// src/components/FilterSidebar.jsx - Fixed version
+import React, { useState, useEffect } from "react";
 import { useFilter } from "../contexts/FilterContext";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -26,6 +26,9 @@ const FilterSidebar = () => {
   // Local state for price range sliders to prevent filtering during drag
   const [localPriceRange, setLocalPriceRange] = useState(priceRange);
 
+  // Track whether user is currently dragging the slider
+  const [isDragging, setIsDragging] = useState(false);
+
   // State for mobile filter drawer
   const [isMobileFiltersVisible, setIsMobileFiltersVisible] = useState(false);
 
@@ -40,9 +43,12 @@ const FilterSidebar = () => {
     (priceRange.min > 0 || priceRange.max < 10000 ? 1 : 0);
 
   // Update local price range when the context price range changes
-  React.useEffect(() => {
-    setLocalPriceRange(priceRange);
-  }, [priceRange]);
+  // BUT ONLY if user is not currently dragging the slider
+  useEffect(() => {
+    if (!isDragging) {
+      setLocalPriceRange(priceRange);
+    }
+  }, [priceRange, isDragging]);
 
   // Handle slider change without immediately updating filters
   const handleSliderChange = (bound, value) => {
@@ -52,24 +58,32 @@ const FilterSidebar = () => {
     }));
   };
 
-  // Update actual price range on slider release
+  // Handle slider drag start
+  const handleSliderDragStart = () => {
+    setIsDragging(true);
+  };
+
+  // Handle slider drag end
+  const handleSliderDragEnd = () => {
+    // Set a small timeout to ensure drag is complete
+    setTimeout(() => {
+      setIsDragging(false);
+    }, 100);
+  };
+
+  // Update actual price range when Apply button is clicked
   const handleSliderCommit = () => {
     updatePriceRange("min", localPriceRange.min);
     updatePriceRange("max", localPriceRange.max);
   };
 
-  // Ensure input field changes immediately update the filter
+  // Update local state for price range sliders without applying filter
   const handleInputChange = (bound, value) => {
     const parsedValue = parseInt(value) || 0;
     setLocalPriceRange((prev) => ({
       ...prev,
       [bound]: parsedValue,
     }));
-  };
-
-  // Commit input field changes on blur or enter key
-  const handleInputCommit = (bound) => {
-    updatePriceRange(bound, localPriceRange[bound]);
   };
 
   const categories = [
@@ -369,6 +383,14 @@ const FilterSidebar = () => {
             <span>{formatPrice(localPriceRange.max)}</span>
           </div>
 
+          {/* Price range notification */}
+          {(localPriceRange.min !== priceRange.min ||
+            localPriceRange.max !== priceRange.max) && (
+            <div className="mb-2 text-xs text-center text-emerald-700">
+              Adjust sliders and click Apply to update results
+            </div>
+          )}
+
           {/* Custom styled slider track */}
           <div className="relative h-1.5 bg-gray-200 rounded-full mb-4 mt-5">
             <div
@@ -384,11 +406,12 @@ const FilterSidebar = () => {
               type="range"
               min="0"
               max="10000"
-              step="500"
               value={localPriceRange.min}
               onChange={(e) => handleSliderChange("min", e.target.value)}
-              onMouseUp={handleSliderCommit}
-              onTouchEnd={handleSliderCommit}
+              onMouseDown={handleSliderDragStart}
+              onMouseUp={handleSliderDragEnd}
+              onTouchStart={handleSliderDragStart}
+              onTouchEnd={handleSliderDragEnd}
               className="absolute w-full h-1.5 appearance-none bg-transparent pointer-events-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-emerald-600 [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white"
             />
 
@@ -397,11 +420,12 @@ const FilterSidebar = () => {
               type="range"
               min="0"
               max="10000"
-              step="500"
               value={localPriceRange.max}
               onChange={(e) => handleSliderChange("max", e.target.value)}
-              onMouseUp={handleSliderCommit}
-              onTouchEnd={handleSliderCommit}
+              onMouseDown={handleSliderDragStart}
+              onMouseUp={handleSliderDragEnd}
+              onTouchStart={handleSliderDragStart}
+              onTouchEnd={handleSliderDragEnd}
               className="absolute w-full h-1.5 appearance-none bg-transparent pointer-events-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-emerald-600 [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white"
             />
           </div>
@@ -413,8 +437,8 @@ const FilterSidebar = () => {
                 type="number"
                 value={localPriceRange.min}
                 onChange={(e) => handleInputChange("min", e.target.value)}
-                onBlur={() => handleInputCommit("min")}
-                onKeyDown={(e) => e.key === "Enter" && handleInputCommit("min")}
+                onFocus={handleSliderDragStart}
+                onBlur={handleSliderDragEnd}
                 className="w-full px-3 py-2 pl-6 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500"
                 min="0"
                 max={localPriceRange.max - 500}
@@ -431,8 +455,8 @@ const FilterSidebar = () => {
                 type="number"
                 value={localPriceRange.max}
                 onChange={(e) => handleInputChange("max", e.target.value)}
-                onBlur={() => handleInputCommit("max")}
-                onKeyDown={(e) => e.key === "Enter" && handleInputCommit("max")}
+                onFocus={handleSliderDragStart}
+                onBlur={handleSliderDragEnd}
                 className="w-full px-3 py-2 pl-6 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500"
                 min={localPriceRange.min + 500}
                 max="10000"
@@ -442,6 +466,14 @@ const FilterSidebar = () => {
               </span>
             </div>
           </div>
+
+          {/* Apply button */}
+          <button
+            onClick={handleSliderCommit}
+            className="flex items-center justify-center w-full px-4 py-2 mt-4 text-sm font-medium transition-colors rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-700"
+          >
+            Apply Price Range
+          </button>
         </div>
       </FilterSection>
 
