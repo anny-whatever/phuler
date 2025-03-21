@@ -1,3 +1,4 @@
+// src/components/Header.jsx
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -14,15 +15,13 @@ import {
   ChevronUp,
 } from "lucide-react";
 import Logo from "./Logo";
-import CartDrawer from "./CartDrawer";
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState(null);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [cartOpen, setCartOpen] = useState(false);
-  const { cartItems, cartCount } = useCart();
+  const { toggleCart, cartCount } = useCart();
   const { wishlistItems } = useWishlist();
   const location = useLocation();
 
@@ -45,7 +44,6 @@ const Header = () => {
     setMenuOpen(false);
     setSearchOpen(false);
     setActiveSection(null);
-    setCartOpen(false);
   }, [location]);
 
   // Categories for the menu
@@ -237,18 +235,40 @@ const Header = () => {
                   </span>
                 )}
               </Link>
-              <button
-                onClick={() => setCartOpen(true)}
+              <motion.button
+                onClick={toggleCart}
                 className="relative text-gray-600 transition-colors hover:text-emerald-700"
                 aria-label="Cart"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
               >
                 <ShoppingBag size={20} />
                 {cartCount > 0 && (
-                  <span className="absolute flex items-center justify-center w-4 h-4 text-xs text-white rounded-full -top-1 -right-1 bg-emerald-700">
+                  <motion.span
+                    className="absolute flex items-center justify-center w-4 h-4 text-xs text-white rounded-full -top-1 -right-1 bg-emerald-700"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                  >
+                    {cartCount}
+                  </motion.span>
+                )}
+              </motion.button>
+            </div>
+
+            {/* Enhanced cart button in desktop collapsed state */}
+            <div className="absolute right-0 hidden w-20 bottom-24 lg:group-hover:hidden lg:block">
+              {cartCount > 0 && (
+                <motion.button
+                  onClick={toggleCart}
+                  className="flex flex-col items-center justify-center w-12 h-12 p-2 mx-auto rounded-l-lg bg-emerald-700 group"
+                  whileHover={{ width: 56 }}
+                >
+                  <ShoppingBag size={20} className="text-white" />
+                  <span className="absolute top-0 right-0 flex items-center justify-center w-5 h-5 text-xs font-medium bg-white rounded-full text-emerald-700">
                     {cartCount}
                   </span>
-                )}
-              </button>
+                </motion.button>
+              )}
             </div>
 
             {/* Extended view in expanded state */}
@@ -273,7 +293,7 @@ const Header = () => {
                 )}
               </Link>
               <button
-                onClick={() => setCartOpen(true)}
+                onClick={toggleCart}
                 className="flex items-center w-full py-2 text-gray-600 transition-colors hover:text-emerald-700"
               >
                 <ShoppingBag size={18} className="mr-3" />
@@ -334,15 +354,20 @@ const Header = () => {
               )}
             </Link>
             <button
-              onClick={() => setCartOpen(true)}
+              onClick={toggleCart}
               className="relative text-gray-800"
               aria-label="Cart"
             >
               <ShoppingBag size={20} />
               {cartCount > 0 && (
-                <span className="absolute flex items-center justify-center w-4 h-4 text-xs text-white rounded-full -top-1 -right-1 bg-emerald-700">
+                <motion.span
+                  className="absolute flex items-center justify-center w-4 h-4 text-xs text-white rounded-full -top-1 -right-1 bg-emerald-700"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 500 }}
+                >
                   {cartCount}
-                </span>
+                </motion.span>
               )}
             </button>
           </div>
@@ -475,9 +500,6 @@ const Header = () => {
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Cart Drawer */}
-      <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
 
       {/* Search Overlay - Both Mobile and Desktop */}
       <AnimatePresence>

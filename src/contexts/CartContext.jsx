@@ -1,3 +1,4 @@
+// src/contexts/CartContext.jsx
 import React, { createContext, useContext, useState, useEffect } from "react";
 
 const CartContext = createContext();
@@ -10,6 +11,8 @@ export function CartProvider({ children }) {
   const [cartItems, setCartItems] = useState([]);
   const [subtotal, setSubtotal] = useState(0);
   const [cartCount, setCartCount] = useState(0);
+  const [lastAddedProduct, setLastAddedProduct] = useState(null);
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
   // Load cart from localStorage on initial render
   useEffect(() => {
@@ -54,18 +57,27 @@ export function CartProvider({ children }) {
             JSON.stringify(selectedOptions)
       );
 
+      let updatedItems;
+
       if (existingItemIndex > -1) {
         // Update quantity of existing item
-        const updatedItems = [...prevItems];
+        updatedItems = [...prevItems];
         updatedItems[existingItemIndex].quantity += quantity;
-        return updatedItems;
       } else {
         // Add new item
-        return [
+        updatedItems = [
           ...prevItems,
           { ...product, quantity, selectedOptions, cartItemId },
         ];
       }
+
+      // Set the last added product for toast notification
+      setLastAddedProduct(product);
+
+      // Open the cart drawer
+      setIsCartOpen(true);
+
+      return updatedItems;
     });
   };
 
@@ -95,14 +107,28 @@ export function CartProvider({ children }) {
     localStorage.removeItem("phulerCart");
   };
 
+  // Toggle cart visibility
+  const toggleCart = () => {
+    setIsCartOpen(!isCartOpen);
+  };
+
+  // Close cart
+  const closeCart = () => {
+    setIsCartOpen(false);
+  };
+
   const value = {
     cartItems,
     cartCount,
     subtotal,
+    lastAddedProduct,
+    isCartOpen,
     addToCart,
     removeFromCart,
     updateQuantity,
     clearCart,
+    toggleCart,
+    closeCart,
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

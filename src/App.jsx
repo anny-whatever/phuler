@@ -1,3 +1,4 @@
+// src/App.jsx
 import React, { useState, useEffect } from "react";
 import {
   BrowserRouter as Router,
@@ -8,6 +9,7 @@ import {
 import { CartProvider } from "./contexts/CartContext";
 import { WishlistProvider } from "./contexts/WishlistContext";
 import { FilterProvider } from "./contexts/FilterContext";
+import { ToastProvider } from "./contexts/ToastContext";
 import { motion, AnimatePresence } from "framer-motion";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -20,6 +22,9 @@ import CheckoutPage from "./pages/CheckoutPage";
 import WishlistPage from "./pages/WishlistPage";
 import NewsletterPopup from "./components/NewsletterPopup";
 import LoadingScreen from "./components/LoadingScreen";
+import CartDrawer from "./components/CartDrawer";
+import FloatingCartButton from "./components/FloatingCartButton";
+import { useCart } from "./contexts/CartContext";
 
 import { useSmoothScroll } from "./hooks/useMotion";
 
@@ -77,30 +82,44 @@ function App() {
 
   return (
     <Router>
-      <FilterProvider>
-        <WishlistProvider>
-          <CartProvider>
-            <div className="relative">
-              <LoadingScreen isLoading={isLoading} />
+      <ToastProvider>
+        <FilterProvider>
+          <WishlistProvider>
+            <CartProvider>
+              <div className="relative">
+                <LoadingScreen isLoading={isLoading} />
 
-              <div
-                className={`min-h-screen bg-pattern ${
-                  isLoading ? "hidden" : ""
-                }`}
-              >
-                <Header />
-                <main>
-                  <AnimatedRoutes />
-                </main>
-                <Footer />
-                <NewsletterPopup />
+                <div
+                  className={`min-h-screen bg-pattern ${
+                    isLoading ? "hidden" : ""
+                  }`}
+                >
+                  <Header />
+                  <main>
+                    <AnimatedRoutes />
+                  </main>
+                  <Footer />
+                  <NewsletterPopup />
+                  <CartDrawer />
+
+                  {/* Floating cart button for mobile/tablet */}
+                  <div className="lg:hidden">
+                    <FloatingCartButtonWithContext />
+                  </div>
+                </div>
               </div>
-            </div>
-          </CartProvider>
-        </WishlistProvider>
-      </FilterProvider>
+            </CartProvider>
+          </WishlistProvider>
+        </FilterProvider>
+      </ToastProvider>
     </Router>
   );
 }
+
+// Using the FloatingCartButton with context
+const FloatingCartButtonWithContext = () => {
+  const { toggleCart } = useCart();
+  return <FloatingCartButton onClick={toggleCart} />;
+};
 
 export default App;

@@ -1,3 +1,4 @@
+// src/components/ProductCard.jsx
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -241,17 +242,16 @@ const ProductCard = ({ product, className = "", layout = "grid" }) => {
                 <span className="text-xs font-medium">Add</span>
               </motion.button>
 
-              <motion.button
+              <motion.div
                 className="p-2 text-gray-700 transition-colors rounded-full hover:text-gray-900 hover:bg-gray-100"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 variants={buttonVariants}
-                aria-label="View details"
               >
-                <Link to={`/products/${product.id}`}>
+                <Link to={`/products/${product.id}`} aria-label="View details">
                   <Eye size={18} />
                 </Link>
-              </motion.button>
+              </motion.div>
             </div>
           </motion.div>
 
